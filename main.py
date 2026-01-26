@@ -72,7 +72,7 @@ async def promote(interaction: discord.Interaction, member: discord.Member, role
     embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
     embed.set_footer(text="San Diego City RP Promotions")
     embed.timestamp = discord.utils.utcnow()
-    embed.set_image(url="https://cdn.discordapp.com/attachments/1403553589573713930/1425900567401730148/Add_a_heading_-_2.png?ex=68e944e3&is=68e7f363&hm=2c0526a622d27ca2ff6cd8460b9f163151613748d6599f5378ab57f6c64b5630&")  # replace with the image URL you want
+    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785375440896/image.jpg?ex=697876e0&is=69772560&hm=86fad7edf79068cb371450a07a2d8dc583df16cb47a4a0b9a320be05cfe4dc89&=&format=webp&width=2636&height=928")  # replace with the image URL you want
 
     # Send embed to log channel
     log_channel = interaction.guild.get_channel(PROMOTION_LOG_CHANNEL_ID)
@@ -130,7 +130,7 @@ async def infract(interaction: discord.Interaction, member: discord.Member, infr
     embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
     embed.set_footer(text="San Diego City RP Infractions")
     embed.timestamp = discord.utils.utcnow()
-    embed.set_image(url="https://cdn.discordapp.com/attachments/1403553589573713930/1425900567078764544/Add_a_heading_-_3.png?ex=68e944e3&is=68e7f363&hm=8cf356ea7aae0fc99cdc16076cc436caf5734415cf746fc267da2c2ca150c863&")  # optional: replace with your infraction banner
+    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785090097273/image.jpg?ex=697876e0&is=69772560&hm=84e9f04c12b0d8223e5e6d538ee81fb390e63cf71ad01c6e5823546b80df92d5&=&format=webp&width=2636&height=928")  # optional: replace with your infraction banner
 
     # Send embed to log channel
     log_channel = interaction.guild.get_channel(INFRACTION_LOG_CHANNEL_ID)
