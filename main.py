@@ -160,11 +160,11 @@ import discord
 async def say(interaction: discord.Interaction, message: str):
     await interaction.channel.send(message)
     await interaction.response.send_message("✅ Message sent!", ephemeral=True)
-    # check for HR+ role
-    if not any(role.name in ["▬▬▬▬▬▬▬ High Ranking ▬▬▬▬▬▬▬", "▬▬▬▬▬▬▬ Senior High Ranking ▬▬▬▬▬▬▬
-", "▬▬▬▬▬▬▬ Foundation Team ▬▬▬▬▬▬▬"] for role in interaction.user.roles):
-        await interaction.response.send_message("❌ You don’t have permission to use this.", ephemeral=True)
+   # Permission check
+    if not has_permission(interaction.user):
+        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
         return
+
 
     # bot sends the message
     await interaction.response.send_message(message)
