@@ -122,6 +122,7 @@ async def infract(interaction: discord.Interaction, member: discord.Member, infr
         ),
         color=discord.Color.red()
     )
+    member.mention
     embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
     embed.set_thumbnail(url=member.display_avatar.url)
     embed.add_field(name="User:", value=member.mention, inline=False)
