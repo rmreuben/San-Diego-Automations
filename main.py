@@ -55,7 +55,12 @@ async def promote(interaction: discord.Interaction, member: discord.Member, role
     await member.add_roles(role)
 
     # Create customized embed
-    embed = discord.Embed(
+   await interaction.response.send_message(
+    content=f"{member.mention}!",
+    embed=discord.Embed,
+    allowed_mentions=discord.AllowedMentions(users=[member])
+)
+
         title="🎉 Staff Promotion!",
         description=(
             "Congratulations! You have received a promotion. "
@@ -114,7 +119,11 @@ async def infract(interaction: discord.Interaction, member: discord.Member, infr
         return
 
     # Create embed
-    embed = discord.Embed(
+   await interaction.response.send_message(
+    content=f"{member.mention}!",
+    embed=discord.Embed,
+    allowed_mentions=discord.AllowedMentions(users=[member])
+)
         title="❌ Staff Infraction",
         description=(
             f"You have received an infraction. Please review the details below regarding this action. If you have any questions, please contact the IA Team."
