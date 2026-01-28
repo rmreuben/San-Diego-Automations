@@ -31,76 +31,81 @@ def has_permission(user: discord.Member):
     allowed_roles = ["▬▬▬▬▬▬▬ High Ranking ▬▬▬▬▬▬▬", "▬▬▬▬▬▬▬ Senior High Ranking ▬▬▬▬▬▬▬", "▬▬▬▬▬▬▬ Foundation Team ▬▬▬▬▬▬▬"]
     return any(discord.utils.get(user.roles, name=role) for role in allowed_roles)
 
-# -------------------
-# PROMOTE command
-# -------------------
 @bot.tree.command(name="promote", description="Promote a Staff Member (HR+)", guild=guild)
 @app_commands.describe(
-    member="Staff Member to Promote", 
-    role="New Rank", 
+    member="Staff Member to Promote",
+    role="New Rank",
     reason="Reason for Promotion"
 )
 async def promote(interaction: discord.Interaction, member: discord.Member, role: discord.Role, reason: str):
     # Permission check
     if not has_permission(interaction.user):
-        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await interaction.response.send_message(
+            "❌ You do not have permission to use this command.",
+            ephemeral=True
+        )
         return
 
     # Make sure the bot can assign the role
     if role >= interaction.guild.me.top_role:
-        await interaction.response.send_message(f"❌ I cannot assign the role `{role.name}` because it is higher than my top role.", ephemeral=True)
+        await interaction.response.send_message(
+            f"❌ I cannot assign the role `{role.name}` because it is higher than my top role.",
+            ephemeral=True
+        )
         return
 
     # Assign role
     await member.add_roles(role)
 
-   # Create customized embed
-embed = discord.Embed(
-    title="🎉 Staff Promotion!",
-    description=(
-        "Congratulations! You have received a promotion. "
-        "Please review the below details regarding your position. "
-        "Our HR team will be in contact with you to help you transition into this role."
-    ),
-    color=discord.Color.from_rgb(255, 229, 115)
-)
-
-embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
-embed.set_thumbnail(url=member.display_avatar.url)
-embed.add_field(name="User:", value=member.mention, inline=False)
-embed.add_field(name="New Rank:", value=role.mention, inline=False)
-embed.add_field(name="Reason:", value=reason, inline=False)
-embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
-embed.set_footer(text="San Diego City RP Promotions")
-embed.timestamp = discord.utils.utcnow()
-embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785375440896/image.jpg")
-
-# 🔔 PUBLIC MESSAGE (this is the ping)
-await interaction.response.send_message(
-    content=f"🎉 Congratulations {member.mention}!",
-    embed=embed,
-    allowed_mentions=discord.AllowedMentions(users=[member])
-)
-
-# 📋 Log channel
-log_channel = interaction.guild.get_channel(PROMOTION_LOG_CHANNEL_ID)
-if log_channel:
-    await log_channel.send(embed=embed)
-
-# 📬 DM member
-try:
-    await member.send(embed=embed)
-except discord.Forbidden:
-    await interaction.followup.send(
-        f"⚠️ Could not DM {member.mention}",
-        ephemeral=True
+    # -------------------
+    # Create customized embed
+    # -------------------
+    embed = discord.Embed(
+        title="🎉 Staff Promotion!",
+        description=(
+            "Congratulations! You have received a promotion. "
+            "Please review the below details regarding your position. "
+            "Our HR team will be in contact with you to help you transition into this role."
+        ),
+        color=discord.Color.from_rgb(255, 229, 115)
     )
 
-# ✅ Ephemeral confirmation (HR only)
-await interaction.followup.send(
-    f"✅ {member.display_name} has been promoted to {role.name}.",
-    ephemeral=True
-)
+    embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.add_field(name="User:", value=member.mention, inline=False)
+    embed.add_field(name="New Rank:", value=role.mention, inline=False)
+    embed.add_field(name="Reason:", value=reason, inline=False)
+    embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
+    embed.set_footer(text="San Diego City RP Promotions")
+    embed.timestamp = discord.utils.utcnow()
+    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785375440896/image.jpg")
+
+    # 🔔 PUBLIC MESSAGE (ping)
+    await interaction.response.send_message(
+        content=f"🎉 Congratulations {member.mention}!",
+        embed=embed,
+        allowed_mentions=discord.AllowedMentions(users=[member])
+    )
+
+    # 📋 Log channel
+    log_channel = interaction.guild.get_channel(PROMOTION_LOG_CHANNEL_ID)
+    if log_channel:
+        await log_channel.send(embed=embed)
+
+    # 📬 DM member
+    try:
+        await member.send(embed=embed)
+    except discord.Forbidden:
+        await interaction.followup.send(
+            f"⚠️ Could not DM {member.mention}",
+            ephemeral=True
+        )
+
+    # ✅ Ephemeral confirmation (HR only)
+    await interaction.followup.send(
+        f"✅ {member.display_name} has been promoted to {role.name}.",
+        ephemeral=True
+    )
 
 
 @bot.tree.command(name="infract", description="Infract a Staff Member (IA+)", guild=guild)
