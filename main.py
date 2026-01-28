@@ -54,52 +54,58 @@ async def promote(interaction: discord.Interaction, member: discord.Member, role
     # Assign role
     await member.add_roles(role)
 
-    # Create customized embed
-   await interaction.response.send_message(
-    content=f"{member.mention}!",
-    embed=discord.Embed,
+   # Create customized embed
+embed = discord.Embed(
+    title="🎉 Staff Promotion!",
+    description=(
+        "Congratulations! You have received a promotion. "
+        "Please review the below details regarding your position. "
+        "Our HR team will be in contact with you to help you transition into this role."
+    ),
+    color=discord.Color.from_rgb(255, 229, 115)
+)
+
+embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
+embed.set_thumbnail(url=member.display_avatar.url)
+embed.add_field(name="User:", value=member.mention, inline=False)
+embed.add_field(name="New Rank:", value=role.mention, inline=False)
+embed.add_field(name="Reason:", value=reason, inline=False)
+embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
+embed.set_footer(text="San Diego City RP Promotions")
+embed.timestamp = discord.utils.utcnow()
+embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785375440896/image.jpg")
+
+# 🔔 PUBLIC MESSAGE (this is the ping)
+await interaction.response.send_message(
+    content=f"🎉 Congratulations {member.mention}!",
+    embed=embed,
     allowed_mentions=discord.AllowedMentions(users=[member])
 )
 
-        title="🎉 Staff Promotion!",
-        description=(
-            "Congratulations! You have received a promotion. "
-            "Please review the below details regarding your position. "
-            "Our HR team will be in contact with you to help you transition into this role."
-        ),
-        color=discord.Color.from_rgb(255, 229, 115)  # ffe573
+# 📋 Log channel
+log_channel = interaction.guild.get_channel(PROMOTION_LOG_CHANNEL_ID)
+if log_channel:
+    await log_channel.send(embed=embed)
+
+# 📬 DM member
+try:
+    await member.send(embed=embed)
+except discord.Forbidden:
+    await interaction.followup.send(
+        f"⚠️ Could not DM {member.mention}",
+        ephemeral=True
     )
-    embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
-    embed.set_thumbnail(url=member.display_avatar.url)
-    embed.add_field(name="User:", value=member.mention, inline=False)
-    embed.add_field(name="New Rank:", value=f"<@&{role.id}>", inline=False)
-    embed.add_field(name="Reason:", value=reason, inline=False)
-    embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
-    embed.set_footer(text="San Diego City RP Promotions")
-    embed.timestamp = discord.utils.utcnow()
-    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785375440896/image.jpg?ex=697876e0&is=69772560&hm=86fad7edf79068cb371450a07a2d8dc583df16cb47a4a0b9a320be05cfe4dc89&=&format=webp&width=2636&height=928")  # replace with the image URL you want
 
-    # Send embed to log channel
-    log_channel = interaction.guild.get_channel(PROMOTION_LOG_CHANNEL_ID)
-    if log_channel:
-        await log_channel.send(embed=embed)
-
-    # Send DM to member
-    try:
-        await member.send(embed=embed)
-    except discord.Forbidden:
-        await interaction.followup.send(f"⚠️ Could not DM {member.mention}", ephemeral=True)
+# ✅ Ephemeral confirmation (HR only)
+await interaction.followup.send(
+    f"✅ {member.display_name} has been promoted to {role.name}.",
+    ephemeral=True
+)
 
 
-    # Confirm to the command user
-    await interaction.response.send_message(f"✅ {member.mention} has been promoted to {role.name}!", ephemeral=True)
-
-# -------------------
-# INFRACT command with dropdown
-# -------------------
 @bot.tree.command(name="infract", description="Infract a Staff Member (IA+)", guild=guild)
 @app_commands.describe(
-    member="Staff Member to Infract", 
+    member="Staff Member to Infract",
     infraction_type="Select the Type of Infraction",
     reason="Reason for the Infraction"
 )
@@ -111,27 +117,37 @@ async def promote(interaction: discord.Interaction, member: discord.Member, role
     app_commands.Choice(name="Suspension", value="Suspension"),
     app_commands.Choice(name="Under Investigation", value="Under Investigation"),
 ])
-async def infract(interaction: discord.Interaction, member: discord.Member, infraction_type: app_commands.Choice[str], reason: str):
+async def infract(
+    interaction: discord.Interaction,
+    member: discord.Member,
+    infraction_type: app_commands.Choice[str],
+    reason: str
+):
     # Permission check
-    allowed_roles = ["Internal Affairs", "▬▬▬▬▬▬▬ High Ranking ▬▬▬▬▬▬▬", "▬▬▬▬▬▬▬ Senior High Ranking ▬▬▬▬▬▬▬", "▬▬▬▬▬▬▬ Foundation Team ▬▬▬▬▬▬▬"]
-    if not any(discord.utils.get(interaction.user.roles, name=role) for role in allowed_roles):
-        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+    allowed_roles = [
+        "Internal Affairs",
+        "▬▬▬▬▬▬▬ High Ranking ▬▬▬▬▬▬▬",
+        "▬▬▬▬▬▬▬ Senior High Ranking ▬▬▬▬▬▬▬",
+        "▬▬▬▬▬▬▬ Foundation Team ▬▬▬▬▬▬▬"
+    ]
+
+    if not any(discord.utils.get(interaction.user.roles, name=r) for r in allowed_roles):
+        await interaction.response.send_message(
+            "❌ You do not have permission to use this command.",
+            ephemeral=True
+        )
         return
 
     # Create embed
-   await interaction.response.send_message(
-    content=f"{member.mention}!",
-    embed=discord.Embed,
-    allowed_mentions=discord.AllowedMentions(users=[member])
-)
+    embed = discord.Embed(
         title="❌ Staff Infraction",
         description=(
-            f"You have received an infraction. Please review the details below regarding this action. If you have any questions, please contact the IA Team."
-          
+            "You have received an infraction. Please review the details below. "
+            "If you have any questions, contact the Internal Affairs team."
         ),
         color=discord.Color.red()
     )
-    member.mention
+
     embed.set_author(name="San Diego City RP", icon_url=bot.user.display_avatar.url)
     embed.set_thumbnail(url=member.display_avatar.url)
     embed.add_field(name="User:", value=member.mention, inline=False)
@@ -140,23 +156,34 @@ async def infract(interaction: discord.Interaction, member: discord.Member, infr
     embed.add_field(name="Issued By:", value=interaction.user.mention, inline=False)
     embed.set_footer(text="San Diego City RP Infractions")
     embed.timestamp = discord.utils.utcnow()
-    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785090097273/image.jpg?ex=697876e0&is=69772560&hm=84e9f04c12b0d8223e5e6d538ee81fb390e63cf71ad01c6e5823546b80df92d5&=&format=webp&width=2636&height=928")  # optional: replace with your infraction banner
+    embed.set_image(url="https://media.discordapp.net/attachments/1377761597858250943/1465261785090097273/image.jpg")
 
-    # Send embed to log channel
+    # 🔔 PUBLIC MESSAGE (PING)
+    await interaction.response.send_message(
+        content=f"{member.mention}",
+        embed=embed,
+        allowed_mentions=discord.AllowedMentions(users=[member])
+    )
+
+    # 📋 Log channel
     log_channel = interaction.guild.get_channel(INFRACTION_LOG_CHANNEL_ID)
     if log_channel:
         await log_channel.send(embed=embed)
 
-    # Send DM to member
+    # 📬 DM member
     try:
         await member.send(embed=embed)
     except discord.Forbidden:
-        await interaction.followup.send(f"⚠️ Could not DM {member.mention}", ephemeral=True)
+        await interaction.followup.send(
+            f"⚠️ Could not DM {member.mention}",
+            ephemeral=True
+        )
 
-
-    # Confirm to the command user
-    await interaction.response.send_message(f"✅ {member.mention} has received a **{infraction_type.value}**.", ephemeral=True)
-
+    # ✅ Ephemeral confirmation (IA/HR)
+    await interaction.followup.send(
+        f"✅ {member.display_name} has received a **{infraction_type.value}**.",
+        ephemeral=True
+    )
 
 
 
